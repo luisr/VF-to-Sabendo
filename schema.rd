@@ -707,11 +707,11 @@
     "table_owner": "supabase_storage_admin",
     "rls_enabled": true,
     "rls_forced": false,
-    "policy_name": "Permitir acesso total a membros do projeto",
+    "policy_name": "Allow full access to tosabendo2 bucket",
     "mode": "PERMISSIVE",
     "command": "*",
     "roles": "{authenticated}",
-    "using_expression": "((bucket_id = 'tosabendo2'::text) AND is_project_member(get_project_id_from_path(name), auth.uid()))",
-    "with_check_expression": "((bucket_id = 'tosabendo2'::text) AND is_project_member(get_project_id_from_path(name), auth.uid()))"
+    "using_expression": "(bucket_id = 'tosabendo2'::text)",
+    "with_check_expression": "(bucket_id = 'tosabendo2'::text)"
   }
 ]

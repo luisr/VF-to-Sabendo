@@ -70,4 +70,4 @@ public,tasks,postgres,true,false,Block all direct writes,PERMISSIVE,*,null,false
 public,tasks,postgres,true,false,tasks_members,PERMISSIVE,*,null,"is_project_member(project_id, auth.uid())",null
 storage,objects,supabase_storage_admin,true,false,Allow authenticated read access,PERMISSIVE,r,{authenticated},((bucket_id = 'user_uploads'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text)),null
 storage,objects,supabase_storage_admin,true,false,Allow authenticated uploads,PERMISSIVE,a,{authenticated},null,((bucket_id = 'user_uploads'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))
-storage,objects,supabase_storage_admin,true,false,Permitir acesso total a membros do projeto,PERMISSIVE,*,{authenticated},"((bucket_id = 'tosabendo2'::text) AND is_project_member(get_project_id_from_path(name), auth.uid()))","((bucket_id = 'tosabendo2'::text) AND is_project_member(get_project_id_from_path(name), auth.uid()))"
+storage,objects,supabase_storage_admin,true,false,Allow full access to tosabendo2 bucket,PERMISSIVE,*,{authenticated},(bucket_id = 'tosabendo2'::text),(bucket_id = 'tosabendo2'::text)
