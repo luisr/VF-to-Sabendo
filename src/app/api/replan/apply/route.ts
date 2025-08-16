@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       if (suggestion.action === 'update') {
         const { data: existing } = await supabase
           .from('tasks')
-          .select('id, name, description, assignee_id, status_id, priority, progress, start_date, end_date, parent_id, is_milestone, custom_fields, task_tags(tag_id), task_dependencies(dependency_id)')
+          .select('id, name, description, assignee_id, status_id, priority:task_priorities(name), progress, start_date, end_date, parent_id, is_milestone, custom_fields, task_tags(tag_id), task_dependencies(dependency_id)')
           .eq('project_id', projectId)
           .ilike('name', suggestion.taskName)
           .single();
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
           p_description: existing.description,
           p_assignee_id: existing.assignee_id,
           p_status_id: existing.status_id,
-          p_priority: existing.priority,
+          p_priority: existing.priority?.name,
           p_progress: existing.progress,
           p_start_date: suggestion.changes?.new_start_date || existing.start_date,
           p_end_date: suggestion.changes?.new_end_date || existing.end_date,

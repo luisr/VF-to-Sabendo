@@ -65,9 +65,10 @@ serve(async (req) => {
     const supabaseAdmin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
     // ... (lógica de busca de dados permanece a mesma) ...
-    const [ userResults, statusResults, tasksResults, downloadResults ] = await Promise.all([
+    const [ userResults, statusResults, priorityResults, tasksResults, downloadResults ] = await Promise.all([
         supabaseAdmin.from('profiles').select('id, name, email'),
         supabaseAdmin.from('task_statuses').select('id, name'),
+        supabaseAdmin.from('task_priorities').select('id, name'),
         supabaseAdmin.from('tasks').select('id, name').eq('project_id', projectId),
         supabaseAdmin.storage.from('tosabendo2').download(filePath)
     ]);
@@ -78,6 +79,9 @@ serve(async (req) => {
 
     if (statusResults.error) throw statusResults.error;
     const statusMap = new Map(statusResults.data.map(s => [(s.name || "").trim().toLowerCase(), s.id]));
+
+    if (priorityResults.error) throw priorityResults.error;
+    const priorityMap = new Map(priorityResults.data.map(p => [(p.name || "").trim().toLowerCase(), p.id]));
 
     if (tasksResults.error) throw tasksResults.error;
     const existingTaskMap = new Map(tasksResults.data.map(t => [(t.name || "").trim().toLowerCase(), t.id]));
@@ -113,7 +117,12 @@ serve(async (req) => {
                          if (!statusId) throw new Error(`Status '${value}' não encontrado.`);
                          task.status_id = statusId;
                          break;
-                    case 'priority': task.priority = normalizePriority(String(value)); break;
+                    case 'priority':
+                         const priorityName = normalizePriority(String(value));
+                         const priorityId = priorityMap.get(priorityName.toLowerCase());
+                         if (!priorityId) throw new Error(`Prioridade '${value}' não encontrada.`);
+                         task.priority_id = priorityId;
+                         break;
                     case 'progress': task.progress = parseProgress(value); break;
                     case 'parent_id':
                          const parentId = existingTaskMap.get(String(value).toLowerCase());
