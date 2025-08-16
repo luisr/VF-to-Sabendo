@@ -11,6 +11,8 @@ DO $$ BEGIN CREATE ROLE project_manager; EXCEPTION WHEN duplicate_object THEN NU
 DO $$ BEGIN CREATE ROLE admin;           EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 ALTER ROLE admin WITH BYPASSRLS;
 GRANT USAGE ON SCHEMA public TO member, project_manager, admin;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO admin;
 
 -- ================================================================
 -- Types
