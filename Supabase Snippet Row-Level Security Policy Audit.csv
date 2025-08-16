@@ -1,0 +1,73 @@
+schema,table_name,table_owner,rls_enabled,rls_forced,policy_name,mode,command,roles,using_expression,with_check_expression
+public,collaborators,postgres,true,false,Allow full access to project members,PERMISSIVE,*,null,"is_project_member(project_id, auth.uid())",null
+public,collaborators,postgres,true,false,Allow read access to project members,PERMISSIVE,r,null,"is_project_member(project_id, auth.uid())",null
+public,collaborators,postgres,true,false,Block all direct writes,PERMISSIVE,*,null,false,null
+public,collaborators,postgres,true,false,collaborators_members,PERMISSIVE,*,null,"is_project_member(project_id, auth.uid())",null
+public,profiles,postgres,true,false,Allow users to manage their own profile,PERMISSIVE,*,null,(auth.uid() = id),null
+public,profiles,postgres,true,false,Users update own profile,PERMISSIVE,w,null,(auth.uid() = id),null
+public,profiles,postgres,true,false,profiles_own,PERMISSIVE,*,null,(auth.uid() = id),(auth.uid() = id)
+public,project_baselines,postgres,true,false,Allow full access to project members,PERMISSIVE,*,null,"is_project_member(project_id, auth.uid())",null
+public,project_baselines,postgres,true,false,Block all direct writes,PERMISSIVE,*,null,false,null
+public,project_change_log,postgres,true,false,project_change_log_members,PERMISSIVE,*,null,"is_project_member(projeto_id, auth.uid())",null
+public,project_progress,postgres,true,false,project_progress_delete,PERMISSIVE,d,null,"is_project_member(project_id, auth.uid())",null
+public,project_progress,postgres,true,false,project_progress_insert,PERMISSIVE,a,null,null,"is_project_member(project_id, auth.uid())"
+public,project_progress,postgres,true,false,project_progress_members_modify,PERMISSIVE,*,null,"is_project_member(project_id, auth.uid())","is_project_member(project_id, auth.uid())"
+public,project_progress,postgres,true,false,project_progress_members_read,PERMISSIVE,r,null,"is_project_member(project_id, auth.uid())",null
+public,project_progress,postgres,true,false,project_progress_select,PERMISSIVE,r,null,"is_project_member(project_id, auth.uid())",null
+public,project_progress,postgres,true,false,project_progress_update,PERMISSIVE,w,null,"is_project_member(project_id, auth.uid())","is_project_member(project_id, auth.uid())"
+public,projects,postgres,true,false,Allow DELETE for owners,PERMISSIVE,d,null,(owner_id = auth.uid()),null
+public,projects,postgres,true,false,Allow INSERT for any authenticated user,PERMISSIVE,a,null,null,(auth.role() = 'authenticated'::text)
+public,projects,postgres,true,false,Allow members to read projects,PERMISSIVE,r,null,"is_project_member(id, auth.uid())",null
+public,projects,postgres,true,false,Allow read access to project members,PERMISSIVE,r,null,"is_project_member(id, auth.uid())",null
+public,projects,postgres,true,false,Block all direct writes,PERMISSIVE,*,null,false,null
+public,projects,postgres,true,false,projects_members,PERMISSIVE,*,null,"is_project_member(id, auth.uid())",null
+public,replannings,postgres,true,false,replannings_insert,PERMISSIVE,a,null,null,"is_project_member(project_id, auth.uid())"
+public,replannings,postgres,true,false,replannings_select,PERMISSIVE,r,null,"is_project_member(project_id, auth.uid())",null
+public,table_columns,postgres,true,false,Allow authenticated read access,PERMISSIVE,r,null,(auth.role() = 'authenticated'::text),null
+public,table_columns,postgres,true,false,Allow authenticated users to read columns,PERMISSIVE,r,{authenticated},true,null
+public,table_columns,postgres,true,false,Allow full access to authenticated users,PERMISSIVE,*,{authenticated},true,true
+public,tags,postgres,true,false,Allow full access to authenticated users,PERMISSIVE,*,{authenticated},true,true
+public,tags,postgres,true,false,Allow read access to authenticated users,PERMISSIVE,r,null,(auth.role() = 'authenticated'::text),null
+public,tags,postgres,true,false,Block all direct writes,PERMISSIVE,*,null,false,null
+public,tags,postgres,true,false,tags_read,PERMISSIVE,r,null,true,null
+public,task_baselines,postgres,true,false,Allow full access to project members,PERMISSIVE,*,null,"( SELECT is_project_member(p.project_id, auth.uid()) AS is_project_member
+   FROM project_baselines p
+  WHERE (p.id = task_baselines.baseline_id))",null
+public,task_baselines,postgres,true,false,Block all direct writes,PERMISSIVE,*,null,false,null
+public,task_dependencies,postgres,true,false,Allow dependency access for task members,PERMISSIVE,*,null,"is_project_member(( SELECT tasks.project_id
+   FROM tasks
+  WHERE (tasks.id = task_dependencies.task_id)), auth.uid())",null
+public,task_history,postgres,true,false,Allow full access to project members,PERMISSIVE,*,null,"( SELECT is_project_member(t.project_id, auth.uid()) AS is_project_member
+   FROM tasks t
+  WHERE (t.id = task_history.task_id))",null
+public,task_history,postgres,true,false,Allow history access for task members,PERMISSIVE,*,null,"is_project_member(( SELECT tasks.project_id
+   FROM tasks
+  WHERE (tasks.id = task_history.task_id)), auth.uid())",null
+public,task_history,postgres,true,false,Allow members to read task history,PERMISSIVE,r,null,"(EXISTS ( SELECT 1
+   FROM (tasks t
+     JOIN collaborators c ON ((t.project_id = c.project_id)))
+  WHERE ((t.id = task_history.task_id) AND (c.user_id = auth.uid()))))",null
+public,task_history,postgres,true,false,Block all direct writes,PERMISSIVE,*,null,false,null
+public,task_observations,postgres,true,false,Allow authors or managers to delete observations,PERMISSIVE,d,null,"((author_id = auth.uid()) OR (( SELECT collaborators.role
+   FROM collaborators
+  WHERE ((collaborators.user_id = auth.uid()) AND (collaborators.project_id = ( SELECT tasks.project_id
+           FROM tasks
+          WHERE (tasks.id = task_observations.task_id))))) = 'Gerente'::collaborator_role))",null
+public,task_observations,postgres,true,false,Allow authors to update their own observations,PERMISSIVE,w,null,(author_id = auth.uid()),(author_id = auth.uid())
+public,task_observations,postgres,true,false,Allow members to create observations,PERMISSIVE,a,null,null,(can_access_task_data(task_id) AND (author_id = auth.uid()))
+public,task_observations,postgres,true,false,Allow members to view observations,PERMISSIVE,r,null,can_access_task_data(task_id),null
+public,task_statuses,postgres,true,false,Allow full access to authenticated users,PERMISSIVE,*,{authenticated},true,true
+public,task_statuses,postgres,true,false,Allow read access to authenticated users,PERMISSIVE,r,null,(auth.role() = 'authenticated'::text),null
+public,task_statuses,postgres,true,false,Block all direct writes,PERMISSIVE,*,null,false,null
+public,task_statuses,postgres,true,false,task_statuses_read,PERMISSIVE,r,null,true,null
+public,task_tags,postgres,true,false,Allow tag access for task members,PERMISSIVE,*,null,"is_project_member(( SELECT tasks.project_id
+   FROM tasks
+  WHERE (tasks.id = task_tags.task_id)), auth.uid())",null
+public,tasks,postgres,true,false,Allow full access to project members,PERMISSIVE,*,null,"is_project_member(project_id, auth.uid())",null
+public,tasks,postgres,true,false,Allow members to read tasks,PERMISSIVE,r,null,"is_project_member(project_id, auth.uid())",null
+public,tasks,postgres,true,false,Allow read access to project members,PERMISSIVE,r,null,"is_project_member(project_id, auth.uid())",null
+public,tasks,postgres,true,false,Block all direct writes,PERMISSIVE,*,null,false,null
+public,tasks,postgres,true,false,tasks_members,PERMISSIVE,*,null,"is_project_member(project_id, auth.uid())",null
+storage,objects,supabase_storage_admin,true,false,Allow authenticated read access,PERMISSIVE,r,{authenticated},((bucket_id = 'user_uploads'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text)),null
+storage,objects,supabase_storage_admin,true,false,Allow authenticated uploads,PERMISSIVE,a,{authenticated},null,((bucket_id = 'user_uploads'::text) AND ((storage.foldername(name))[1] = (auth.uid())::text))
+storage,objects,supabase_storage_admin,true,false,Permitir acesso total a membros do projeto,PERMISSIVE,*,{authenticated},"((bucket_id = 'tosabendo2'::text) AND is_project_member(get_project_id_from_path(name), auth.uid()))","((bucket_id = 'tosabendo2'::text) AND is_project_member(get_project_id_from_path(name), auth.uid()))"
