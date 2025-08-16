@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "import-tasks": {
+      "timeout": 60
+    },
+    "secure-file-upload": {
+      "timeout": 120
+    }
+  }
+}
