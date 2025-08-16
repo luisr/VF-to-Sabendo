@@ -393,12 +393,10 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'storage' AND tablename = 'objects') THEN
     BEGIN
+      -- Replace existing policy with permissive rule for tosabendo2 bucket
       ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
       DROP POLICY IF EXISTS bucket_tosabendo2_auth ON storage.objects;
-      CREATE POLICY bucket_tosabendo2_auth ON storage.objects
-        FOR ALL TO authenticated
-        USING (bucket_id = 'tosabendo2')
-        WITH CHECK (bucket_id = 'tosabendo2');
+      CREATE POLICY bucket_tosabendo2_auth ON storage.objects FOR ALL TO authenticated USING (bucket_id = 'tosabendo2') WITH CHECK (bucket_id = 'tosabendo2');
     EXCEPTION WHEN insufficient_privilege THEN
       RAISE NOTICE 'Permissão insuficiente para alterar storage.objects.';
     END;
