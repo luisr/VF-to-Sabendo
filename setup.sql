@@ -283,6 +283,44 @@ CREATE TRIGGER set_timestamp_task_obs
   BEFORE UPDATE ON public.task_observations
   FOR EACH ROW EXECUTE FUNCTION public.set_timestamp();
 
+-- Trigger function to log project and task changes
+DROP FUNCTION IF EXISTS public.log_project_change() CASCADE;
+CREATE OR REPLACE FUNCTION public.log_project_change(description text)
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_project_id uuid;
+BEGIN
+  IF TG_TABLE_NAME = 'projects' THEN
+    v_project_id := COALESCE(NEW.id, OLD.id);
+  ELSE
+    v_project_id := COALESCE(NEW.project_id, OLD.project_id);
+  END IF;
+
+  INSERT INTO public.project_change_log (project_id, author_id, description)
+  VALUES (v_project_id, auth.uid(), description || ' ' || TG_OP);
+
+  IF TG_OP = 'DELETE' THEN
+    RETURN OLD;
+  ELSE
+    RETURN NEW;
+  END IF;
+END;
+$$;
+
+-- Triggers to log changes in projects and tasks
+DROP TRIGGER IF EXISTS trg_projects_change_log ON public.projects;
+CREATE TRIGGER trg_projects_change_log
+  AFTER INSERT OR UPDATE OR DELETE ON public.projects
+  FOR EACH ROW EXECUTE FUNCTION public.log_project_change('Project');
+
+DROP TRIGGER IF EXISTS trg_tasks_change_log ON public.tasks;
+CREATE TRIGGER trg_tasks_change_log
+  AFTER INSERT OR UPDATE OR DELETE ON public.tasks
+  FOR EACH ROW EXECUTE FUNCTION public.log_project_change('Task');
+
 -- ================================================================
 -- RLS Policies
 -- ================================================================
