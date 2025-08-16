@@ -349,20 +349,31 @@ CREATE POLICY task_obs_read ON public.task_observations
 CREATE POLICY task_obs_insert ON public.task_observations
   FOR INSERT WITH CHECK (can_access_task_data(task_id) AND author_id = auth.uid());
 CREATE POLICY task_obs_update ON public.task_observations
-  FOR UPDATE USING (author_id = auth.uid()) WITH CHECK (author_id = auth.uid());
+  FOR UPDATE USING (
+    can_access_task_data(task_id)
+    AND (author_id = auth.uid() OR is_project_manager((SELECT project_id FROM public.tasks WHERE id = task_id), auth.uid()))
+  )
+  WITH CHECK (
+    can_access_task_data(task_id)
+    AND (author_id = auth.uid() OR is_project_manager((SELECT project_id FROM public.tasks WHERE id = task_id), auth.uid()))
+  );
 CREATE POLICY task_obs_delete ON public.task_observations
-  FOR DELETE USING (author_id = auth.uid() OR is_project_manager((SELECT project_id FROM public.tasks WHERE id = task_id), auth.uid()));
+  FOR DELETE USING (
+    can_access_task_data(task_id)
+    AND (author_id = auth.uid() OR is_project_manager((SELECT project_id FROM public.tasks WHERE id = task_id), auth.uid()))
+  );
 
 -- tags
 DROP POLICY IF EXISTS tags_access ON public.tags;
 CREATE POLICY tags_access ON public.tags
   FOR ALL USING (is_project_member(project_id, auth.uid()))
-  WITH CHECK (is_project_manager(project_id, auth.uid()));
+  WITH CHECK (is_project_member(project_id, auth.uid()));
 
 -- task_tags
 DROP POLICY IF EXISTS task_tags_access ON public.task_tags;
 CREATE POLICY task_tags_access ON public.task_tags
-  FOR ALL USING (is_project_member((SELECT project_id FROM public.tasks WHERE id = task_id), auth.uid()));
+  FOR ALL USING (is_project_member((SELECT project_id FROM public.tasks WHERE id = task_id), auth.uid()))
+  WITH CHECK (is_project_member((SELECT project_id FROM public.tasks WHERE id = task_id), auth.uid()));
 
 -- project_baselines
 DROP POLICY IF EXISTS baselines_read ON public.project_baselines;
