@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useUsers } from './use-users';
 
 // --- Tipos ---
-export interface TaskStatus { id: string; name: string; color: string; display_order?: number; }
+export interface TaskStatus { id: string; name: string; color: string; }
 export interface Tag { id: string; name: string; color?: string; }
 export interface Column { id: string; name: string; type: 'text' | 'number' | 'date' | 'progress'; is_custom?: boolean; }
 export type SortDirection = 'asc' | 'desc';
@@ -73,7 +73,7 @@ export const TableSettingsProvider = ({ children }: { children: ReactNode }) => 
         }
         setLoading(true);
         const [statusRes, tagsRes] = await Promise.all([
-            supabase.from('task_statuses').select('*').order('display_order'),
+            supabase.from('task_statuses').select('*').order('name'),
             supabase.from('tags').select('*'),
         ]);
         if (statusRes.error) throw statusRes.error;

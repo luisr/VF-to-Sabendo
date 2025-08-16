@@ -24,8 +24,8 @@ BEGIN
   ELSE
     -- TG_TABLE_NAME = 'tasks'
     v_project_id := NEW.project_id;
-    IF NEW.title IS DISTINCT FROM OLD.title THEN
-      v_description := format('Task title changed from %s to %s', OLD.title, NEW.title);
+    IF NEW.name IS DISTINCT FROM OLD.name THEN
+      v_description := format('Task name changed from %s to %s', OLD.name, NEW.name);
     ELSIF NEW.status_id IS DISTINCT FROM OLD.status_id THEN
       v_description := 'Task status updated';
     ELSIF NEW.assignee_id IS DISTINCT FROM OLD.assignee_id THEN
@@ -54,6 +54,6 @@ EXECUTE FUNCTION public.log_project_change();
 -- Trigger for changes in tasks
 DROP TRIGGER IF EXISTS trg_tasks_change_log ON public.tasks;
 CREATE TRIGGER trg_tasks_change_log
-AFTER UPDATE OF title, status_id, assignee_id, start_date, due_date ON public.tasks
+AFTER UPDATE OF name, status_id, assignee_id, start_date, due_date ON public.tasks
 FOR EACH ROW
 EXECUTE FUNCTION public.log_project_change();

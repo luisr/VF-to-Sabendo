@@ -5,7 +5,7 @@ describe('getCriticalPath', () => {
   const baseTask: Omit<Task, 'id' | 'dependency_ids' | 'start_date' | 'end_date'> = {
     formatted_id: '',
     name: '',
-    priority: 'Média',
+    priority: 'Medium',
     progress: 0,
     is_milestone: false,
     project_id: 'p1'
