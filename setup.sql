@@ -129,7 +129,7 @@ CREATE INDEX IF NOT EXISTS idx_task_tags_task_tag ON public.task_tags(task_id, t
 CREATE OR REPLACE FUNCTION public.set_timestamp()
 RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
-  NEW.updated_at := now();
+  NEW.updated_at = now();
   RETURN NEW;
 END $$;
 
