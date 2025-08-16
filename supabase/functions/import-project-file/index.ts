@@ -87,6 +87,10 @@ serve(async (req) => {
     const mappings = JSON.parse(jsonString.replace(/```json\n?|\n?```/g, ''));
     
     // 4. Transformar e Inserir Tarefas
+    const { data: priorityData, error: priorityError } = await supabaseAdmin.from('task_priorities').select('id, name');
+    if (priorityError) throw priorityError;
+    const priorityMap = new Map(priorityData.map(p => [(p.name || '').toLowerCase(), p.id]));
+
     const tasksToInsert: any[] = [];
     for (let i = 0; i < rawTasks.length; i++) {
         const rawTask = rawTasks[i];
@@ -95,7 +99,11 @@ serve(async (req) => {
             const dbField = mappings[sourceField];
             let value = rawTask[sourceField];
             if (dbField && value !== undefined) {
-                if (dbField === 'priority') newTask[dbField] = normalizePriority(value);
+                if (dbField === 'priority') {
+                    const priorityName = normalizePriority(value);
+                    const priorityId = priorityMap.get(priorityName.toLowerCase());
+                    if (priorityId) newTask.priority_id = priorityId;
+                }
                 else if (dbField === 'start_date' || dbField === 'end_date') newTask[dbField] = parseDate(value);
                 else if (dbField === 'progress') newTask[dbField] = parseInt(String(value), 10) || 0;
                 else newTask[dbField] = value;
