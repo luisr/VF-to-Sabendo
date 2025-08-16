@@ -1,7 +1,7 @@
 // src/lib/types.ts
 
 // Tipos Enum para conformidade com a base de dados
-export type TaskPriority = 'Baixa' | 'Média' | 'Alta';
+export type TaskPriority = 'Low' | 'Medium' | 'High';
 export type CollaboratorRole = 'Gerente' | 'Membro';
 
 // Interface para o perfil de um usuário
@@ -31,7 +31,6 @@ export interface TaskStatus {
   id: string;
   name: string;
   color: string;
-  display_order: number;
 }
 
 // Interface para uma Tag (ex: Bug, Melhoria)
@@ -50,6 +49,7 @@ export interface Task {
   assignee_id?: string;
   status_id?: string;
   priority: TaskPriority;
+  priority_id?: string;
   start_date?: string;
   end_date?: string;
   progress: number;

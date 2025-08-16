@@ -13,7 +13,7 @@ BEGIN
   IF TG_TABLE_NAME = 'projects' THEN
     v_project_id := COALESCE(NEW.id, OLD.id);
   ELSE
-    v_project_id := COALESCE(NEW.project_id, OLD.project_id);
+
   END IF;
 
   INSERT INTO public.project_change_log (project_id, author_id, description)
@@ -37,6 +37,6 @@ EXECUTE FUNCTION public.log_project_change('Project');
 -- Trigger for changes in tasks
 DROP TRIGGER IF EXISTS trg_tasks_change_log ON public.tasks;
 CREATE TRIGGER trg_tasks_change_log
-AFTER INSERT OR UPDATE OR DELETE ON public.tasks
+
 FOR EACH ROW
 EXECUTE FUNCTION public.log_project_change('Task');

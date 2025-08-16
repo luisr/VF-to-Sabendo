@@ -4,8 +4,7 @@
 CREATE TABLE IF NOT EXISTS public.task_statuses (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL UNIQUE,
-  color text,
-  display_order integer
+  color text
 );
 
 CREATE TABLE IF NOT EXISTS public.task_priorities (
@@ -15,16 +14,16 @@ CREATE TABLE IF NOT EXISTS public.task_priorities (
 );
 
 -- Seed default data
-INSERT INTO public.task_statuses (name, color, display_order) VALUES
-  ('Pendente', '#6b7280', 1),
-  ('Em Progresso', '#3b82f6', 2),
-  ('Concluído', '#10b981', 3)
+INSERT INTO public.task_statuses (name, color) VALUES
+  ('To Do', '#6b7280'),
+  ('In Progress', '#3b82f6'),
+  ('Done', '#10b981')
 ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO public.task_priorities (name, rank) VALUES
-  ('Alta', 1),
-  ('Média', 2),
-  ('Baixa', 3)
+  ('High', 1),
+  ('Medium', 2),
+  ('Low', 3)
 ON CONFLICT (name) DO NOTHING;
 
 -- Replace text columns in tasks with foreign keys

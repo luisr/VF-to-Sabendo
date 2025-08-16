@@ -134,7 +134,7 @@ export const TasksProvider = ({ children }: { children: ReactNode }) => {
         p_task_id: taskId || null, p_project_id: finalProjectId,
         p_name: taskData.name || null, p_description: taskData.description || null,
         p_assignee_id: taskData.assignee_id || null, p_status_id: taskData.status_id || null,
-        p_priority: taskData.priority || 'Média', p_progress: taskData.progress || 0,
+        p_priority: taskData.priority || 'Medium', p_progress: taskData.progress || 0,
         p_start_date: formatTaskDate(taskData.start_date),
         p_end_date: formatTaskDate(taskData.end_date),
         p_parent_id: taskData.parent_id || null, p_is_milestone: taskData.is_milestone || false,

@@ -55,19 +55,39 @@ CREATE TABLE IF NOT EXISTS public.task_statuses (
   color text
 );
 
+CREATE TABLE IF NOT EXISTS public.task_priorities (
+  id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL UNIQUE,
+  rank integer
+);
+
 CREATE TABLE IF NOT EXISTS public.tasks (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   project_id  uuid NOT NULL REFERENCES public.projects(id) ON DELETE CASCADE,
-  title       text NOT NULL,
+  name        text NOT NULL,
   description text,
   assignee_id uuid REFERENCES public.profiles(id),
   status_id   uuid REFERENCES public.task_statuses(id),
+  priority_id uuid REFERENCES public.task_priorities(id),
   start_date  date,
   end_date    date,
   due_date    date,
   created_at  timestamptz NOT NULL DEFAULT now(),
   updated_at  timestamptz NOT NULL DEFAULT now()
 );
+
+-- Seed default statuses and priorities
+INSERT INTO public.task_statuses (name, color) VALUES
+  ('To Do', '#6b7280'),
+  ('In Progress', '#3b82f6'),
+  ('Done', '#10b981')
+ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO public.task_priorities (name, rank) VALUES
+  ('High', 1),
+  ('Medium', 2),
+  ('Low', 3)
+ON CONFLICT (name) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS public.task_observations (
   id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
